@@ -1,0 +1,428 @@
+
+**************IMP Links***************************
+https://www.twistlock.com/labs-blog/solving-vulnerable-docker-vm/
+https://www.notsosecure.com/vulnerable-docker-vm/
+https://pdfs.semanticscholar.org/742a/e1f31ef79b381db5b4ea6ec8a50f2d423a61.pdf
+https://docs.docker.com/engine/docker-overview/
+
+https://www.pentestpartners.com/security-blog/docker-for-hackers-a-pen-testers-guide/
+************************************************************************
+Docker path
+C:\Users\nspr2\.docker\machine\machines\default
+
+docker runs on IP 192.168.99.100
+
+//commands:
+docker-machine ls
+docker-machine env default
+docker version
+
+container is an instance of an image. there can be any number of containers from the same image.
+
+//Command syntax
+docker <management arguments> <sub commands>
+
+//to run a docker container. The below command pulls an ngnix image from the dockerhub, starts a container and routes the traffic from host port 80 to the container port 80 on which ngnix runs by default.
+docker container run --publish 80:80 ngnix
+
+// to make a container run in background using "detach"
+docker container run --publish 80:80 --detach nginx
+
+//command to list containers
+docker container ls
+
+//to stop docker container
+docker container stop <container-id>
+
+//to list all containers that are both open and closed
+docker containers ls -a
+
+//to pull the image by name. Here "webhost" is the name of the image.
+docker container run --publish 80:80 detach --name webhost nginx
+
+//to remove docker containers
+docker container rm <docker-id1> <docker-id2> <docker-id3>
+
+//to force remove the docker container
+docker container rm -f <docker-id>
+
+
+//to start a container with a name
+docker container run --publish 80:80 --detach --name webhost nginx
+
+//to view logs of a container webhost
+docker container logs webhost
+
+//to view process inside a container
+docker container top webhost
+
+****************Container is a process**************
+
+***************Image vs Container**********************
+
+Image is the binaries, libraries and the source code that all makeup your application
+Container is the running instance of an image
+You can have many containers based on the same image
+
+Images become containers at runtime when they run on docker engine
+
+
+
+*****************************************************************
+
+//Using Environment variables
+//To create a mysql container with env
+docker container run -d -p 3306:3306 --name db -e MYSQL_RANDOM_PASSWORD=yes mysql
+// -d is for detach
+// -e is for environment variables
+// -p is for port
+
+//Set Environment variables
+// Use the -e, --env and --env-file flags to set simple environment variables in the container you're running or overwrite variables that are defined in the docker file of the image you are running
+docker run -e MYVAR1 --env MYVAR=foo --env-file ./env.list ubuntu bash
+
+// top command to find the processes
+docker container top
+
+// inspect command  - to find the config
+docker container inspect  
+
+//Get a shell inside a container
+docker container run -it nginx bash
+// -i for interactive
+// -t for tty
+//nginx is the name of the container
+//bash is the shell used
+
+For more options
+docker container run --help
+
+//Download a ubuntu container
+docker container run -it --name ubuntu ubuntu
+
+//To stop a running container
+docker container stop <container_id>
+
+//To remove a container
+docker container rm <container_id>
+
+//To start a stopped container with interactive
+docker container start -ai <container-id>
+
+
+//To start an existing container with out shell
+docker container start <container_id>
+
+//Start an existing container with shell in interactive mode
+docker container start -ai <container_id>
+
+//To login into a shell of a running container
+docker container exec -it mysql bash
+
+docker container exec -it <container_id> bash
+// exec requires atleast 2 arguments
+
+//docker pull command
+docker pull alpine
+// this downloads alpine linux image
+
+//docker image ls command
+docker image ls
+
+//Apline doesnt have bash shell. it has sh shell
+docker container run -it alpine sh
+
+
+
+*****************************Networking******************************
+
+
+//For a container named "webhost", to know which ports are forwarding traffic to the container from host to container
+
+docker container port webhost
+
+//to know ip address of a container
+docker container inspect --format '{{.NetworkSettings.IPAddress}}' webhost
+
+
+//Different containers have different IPs
+
+// to know different networks 
+docker network ls
+
+
+//To know different containers attached to a network
+docker network inspect bridge
+
+
+// Network Types - "host" , "bridge" , "None"
+
+"host" - less secure, connects docker directly to host machine, high performance
+
+"bridge" - 172.17.0.0/16 subnet, secure
+
+"None" - removes eth0 and leaves you with localhost interface in container
+
+
+//Create a network
+docker network create my_app_net
+
+//Create a container with specfic network
+docker container run -d --name nginx --network my_app_net nginx
+
+//check if the container is part of a network
+docker network inspect my_app_net
+
+//help
+docker network --help
+
+//Connect an existing container to a network
+docker network connect <network_id> <container_id>
+
+//To check if it worked try to inspect the network
+docker network inspect my_app_net
+
+
+
+
+************************************DNS************************************************
+
+Ip Addresses inside containers are dynamic
+Container names are used as hostnames
+Cannot rely on Ipaddresses
+DNS is builtin in custom networks
+No DNS in default network
+
+//To create a container inside a specific network 
+docker container run -d --name new_nginx --network my_app_net nginx:alpine
+
+//To ping another container
+docker container exec -it my_nginx ping new_nginx
+
+//To assign a DNS to a container while creating it
+docker container run -d --name cont1 --network new_virt_net --net-alias search elasticsearch:2
+
+//cont1 is name of the container
+//elasticsearch is the name of the image
+//search is the DNS name
+//new_virt_net is the name of the network
+
+//To perform a DNS lookup
+docker container run --rm --net new_virt_net alpine nslookup search
+//search is the DNS name
+// new_virt_net is the virtual network name
+
+//For centos 
+docker container run --rm --net new_virt_net centos curl -s search:9200
+
+**********************DNS Round Robin**************************************
+
+Use -net-alias to create two images that have same dns name
+
+docker container run -d --net dude --net-alias search elasticsearch:2
+
+docker container run -d --net dude --net-alias search elasticsearch:2
+
+The above two commands give two different images with different image ids but have common dns name that is "search"
+
+C:\Users\nspr2
+λ docker network create dude
+44aca936522af8cdbf553d1ebac96b0d5a335f8d820ed80d577d002f1ef1f12b
+
+C:\Users\nspr2
+λ docker container run -d --net dude --net-alias search elasticsearch:2
+f0e67018d1a589d019b239cccbc39627bd39195adc6afe0c85f6e97fb1567d81
+
+C:\Users\nspr2
+λ docker container run -d --net dude --net-alias search elasticsearch:2
+c7765a7cdb97ab61ff1d06d70e6f143d7b47de7cb9981f8bdca40015772a50a2
+
+C:\Users\nspr2
+λ
+
+C:\Users\nspr2
+λ docker container ls
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS                NAMES
+c7765a7cdb97        elasticsearch:2     "/docker-entrypoint.…"   About a minute ago   Up 46 seconds       9200/tcp, 9300/tcp   quizzical_lehmann
+f0e67018d1a5        elasticsearch:2     "/docker-entrypoint.…"   About a minute ago   Up 49 seconds       9200/tcp, 9300/tcp   zen_rosalind
+
+C:\Users\nspr2
+λ
+
+**************Run nslookup to test the DNS name(***************
+
+C:\Users\nspr2
+λ docker container run --rm --net dude alpine nslookup search
+nslookup: can't resolve '(null)': Name does not resolve
+
+Name:      search
+Address 1: 172.20.0.2 search.dude
+Address 2: 172.20.0.3 search.dude
+
+You will notice that there are two containers that respond to the dns name "search"
+
+*********************************************************************************************
+
+***********What is an image**************
+
+An image is a collection of root file system changes and the corresponding execution parameters for use with in a container runtime
+Not a complete OS
+No kernel and kernel modules
+No drivers
+Kernel is provided by the host OS
+Image has app binaries and dependencies
+Image can be as small as a golang library
+Image can be as big as a ubuntu OS with package manager like apt-get builtin, with Apache and PHP and more installed
+
+
+******************************DockerHub*****************************************8
+
+//Docker Hub is the image repository
+
+//show list of images
+docker image ls
+
+//pull latest image of nginx
+docker pull nginx
+
+//to pull 1.11 version of nginx
+docker pull nginx:1.11
+
+********************************Images and Layers*********************************
+
+//Shows history of image layers. Every image starts with a blank layer called scratch. All the changes the image went through are recorded.
+
+$docker history nginx:latest
+
+C:\Users\nspr2
+λ docker history nginx:latest
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+53f3fd8007f7        3 months ago        /bin/sh -c #(nop)  CMD ["nginx" "-g" "daemon…   0B
+<missing>           3 months ago        /bin/sh -c #(nop)  STOPSIGNAL SIGTERM           0B
+<missing>           3 months ago        /bin/sh -c #(nop)  EXPOSE 80                    0B
+<missing>           3 months ago        /bin/sh -c ln -sf /dev/stdout /var/log/nginx…   22B
+<missing>           3 months ago        /bin/sh -c set -x  && apt-get update  && apt…   54.1MB
+<missing>           3 months ago        /bin/sh -c #(nop)  ENV NJS_VERSION=1.15.12.0…   0B
+<missing>           3 months ago        /bin/sh -c #(nop)  ENV NGINX_VERSION=1.15.12…   0B
+<missing>           3 months ago        /bin/sh -c #(nop)  LABEL maintainer=NGINX Do…   0B
+<missing>           3 months ago        /bin/sh -c #(nop)  CMD ["bash"]                 0B
+<missing>           3 months ago        /bin/sh -c #(nop) ADD file:fcb9328ea4c115670…   55.3MB
+
+
+***************************************Image Tagging*********************************
+
+You can create a new image with a new tag
+
+here in teh below command, we are creating a new image called "bretfisher/nginx" by copying the existing image "nginx".
+Now the newly created tag image and existing image with have the same imageid
+
+docker image tag nginx bretfisher/nginx
+
+C:\Users\nspr2
+λ docker image tag nginx kartb4u/nginx
+
+C:\Users\nspr2
+λ docker image ls
+REPOSITORY              TAG                 IMAGE ID            CREATED             SIZE
+bkimminich/juice-shop   latest              58d2c0bab19c        7 weeks ago         404MB
+alpine                  latest              4d90542f0623        3 months ago        5.58MB
+ubuntu                  latest              4c108a37151f        3 months ago        64.2MB
+httpd                   latest              e77c77f17b46        3 months ago        140MB
+mysql                   latest              c7109f74d339        3 months ago        443MB
+nginx                   alpine              bfba26ca350c        3 months ago        20.5MB
+ubuntu                  14.04               2c5e00d77a67        4 months ago        188MB
+bash                    latest              417531d957ab        4 months ago        15.2MB
+kartb4u/nginx           latest              53f3fd8007f7        4 months ago        109MB
+nginx                   latest              53f3fd8007f7        4 months ago        109MB
+mysql/mysql-server      latest              39649194a7e7        4 months ago        289MB
+first-docker-image      latest              685a455332e7        5 months ago        22.7MB
+centos                  7                   9f38484d220f        6 months ago        202MB
+centos                  latest              9f38484d220f        6 months ago        202MB
+elasticsearch           2                   5e9d896dc62c        12 months ago       479MB
+nginx                   1.15.2-alpine       36f3464a2197        14 months ago       18.6MB
+
+C:\Users\nspr2
+λ docker image push kartb4u/nginx
+The push refers to repository [docker.io/kartb4u/nginx]
+332fa54c5886: Preparing
+6ba094226eea: Preparing
+6270adb5794c: Preparing
+denied: requested access to the resource is denied
+
+C:\Users\nspr2
+λ docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: kartb4u
+Password:
+Login Succeeded
+
+C:\Users\nspr2
+λ docker image push kartb4u/nginx
+The push refers to repository [docker.io/kartb4u/nginx]
+332fa54c5886: Mounted from library/nginx
+6ba094226eea: Mounted from library/nginx
+6270adb5794c: Mounted from library/nginx
+latest: digest: sha256:e770165fef9e36b990882a4083d8ccf5e29e469a8609bb6b2e3b47d9510e2c8d size: 948
+
+***************denied: requested access to the resource is denied*******************************
+
+You have to tag your image before pushing:
+docker tag firstimage YOUR_DOCKERHUB_NAME/firstimage
+
+docker push YOUR_DOCKERHUB_NAME/firstimage
+
+
+******************************************************************************************************************
+************************************************Docker File*******************************************************
+******************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

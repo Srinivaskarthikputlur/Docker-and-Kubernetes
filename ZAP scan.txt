@@ -1,0 +1,16 @@
+https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan
+https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan
+https://blog.mozilla.org/security/2017/01/25/setting-a-baseline-for-web-security-controls/
+https://www.youtube.com/watch?v=o_JZRgQMF4Q
+
+docker run -t owasp/zap2docker-stable zap-baseline.py -t http://demo.testfire.net/
+
+
+docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+    -t http://demo.testfire.net/ -g gen.conf -r testreport.html
+	
+	docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py  -t http://demo.testfire.net/  -r testreport.html
+	
+	docker run -v /:/zap:rw -t owasp/zap2docker-stable zap-baseline.py  -t http://demo.testfire.net/ -g gen.conf  -r testreport.html
+	
+	Security Automation with Ansible 2 by Akash Mahajan, Madhu Akula

@@ -1,0 +1,13 @@
+
+
+
+2019-11-08T00:04:00.8702102Z rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"/zap-baseline.py -t http://karthikputlurcontainerdns.westeurope.azurecontainer.io:8080 -x OWASP-ZAP-Report.xml\": stat /zap-baseline.py -t http://karthikputlurcontainerdns.westeurope.azurecontainer.io:8080 -x OWASP-ZAP-Report.xml: no such file or directory"
+
+
+2019-11-08T00:24:38.0631242Z rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"./zap-baseline.py -t http://karthikputlurcontainerdns.westeurope.azurecontainer.io:8080 -x OWASP-ZAP-Report.xml\": stat ./zap-baseline.py -t http://karthikputlurcontainerdns.westeurope.azurecontainer.io:8080 -x OWASP-ZAP-Report.xml: no such file or directory"
+
+
+rem Execute the baseline scan
+#set "ZAP_COMMAND="/zap-baseline.py -t %TARGET_SCAN_ADDRESS% -x OWASP-ZAP-Report.xml""
+#az container exec -g %ACI_RESOURCE_GROUP% -n %ACI_INSTANCE_NAME% --exec-command %ZAP_COMMAND%
+az container exec -g %ACI_RESOURCE_GROUP% -n %ACI_INSTANCE_NAME% --exec-command "pwd"

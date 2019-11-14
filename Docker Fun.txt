@@ -1,0 +1,24 @@
+Docker Fun
+
+Docker Intro on slides:
+->what is docker, benefits of using docker
+->Docker architecture, Docker Engine
+->IMage vs Container
+->Container vs VM
+
+
+On terminal:
+
+->Pull Docker image and Run an image
+->List all the images using docker image ls command
+->List all the containers using docker container ls command
+->Run an ubuntu image with /bin/bash shell
+->Run an ubuntu image in background with -d detach option
+->Life cycle of a container -> pull an image, run, start,create, stop, kill, remove container,) remove image 
+->Run an ngnix image with publish option -p. Explain the ports host:container. Open the app on browser once the container is running
+->Commit changes you made to a image by using docker commit
+->docker diff command
+->Docker file, Write a docker file from ubuntu and env variables. 
+->Use "docker build -t ." command to run the docker file and build a image
+->Supervisor to run multiple processes on a single container. Run wordpress app with both MySQL and HTTPD running in a single container.
+->Link two containers. Run wordpress but keep MySql in a seperate container. Decoupling components is important benefit of dockers. Useful in microservices environment

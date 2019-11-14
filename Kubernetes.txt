@@ -1,0 +1,47 @@
+Kubernetes
+
+**************************************************************************************************************************************************************************************************************
+K8S or Kube
+Kubectl - cube control - CLI to configure Kubernetes and manager apps
+Node - Single server in kubernetes cluster
+Kubelet - Kubernetes agent running on a node
+Control Plane   -Set of containers that manage a cluster
+				-includes API Server, Scheduler, controller manager, etcd
+				-aka master
+
+In master(Control Plane), multiple containers run to keep system working. they are 
+-etcd, 
+-API, 
+-Scheduler, 
+-Controller Manager, 
+-Core DNS
+**************************************************************************************************************************************************************************************************************
+https://labs.play-with-k8s.com/
+https://www.katacoda.com
+Docker Toolbox on Windows - MiniKube
+Linux - MicroK8s
+
+**************************************************************************************************************************************************************************************************************
+Pod:    One or more containers running together on one node.
+		Basic unit of deployment
+		Containers are always in pods.
+		
+Controller: For creating/updating pods, objects
+
+Types of Controllers: 
+-Deployment
+-ReplicaSet
+-StatefulSet
+-DeamonSet
+-Job
+-CronJob etc
+
+
+In ubuntu, set up alias for kubectl orelse you always have to type microk8s.kubectl 
+In ~/.bash_profile, type "alias kubectl=microk8s.kubectl"
+
+**************************************************************************************************************************************************************************************************************
+Pod
+Controller
+Service 
+NameSpace

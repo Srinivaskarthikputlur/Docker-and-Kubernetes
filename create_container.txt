@@ -1,0 +1,8 @@
+rem Get the storage key
+call az storage account keys list -g %ACI_RESOURCE_GROUP% --account-name %ACI_STORAGE_ACCOUNT_NAME% --query "[0].value" --output tsv > temp.txt
+set /p STORAGE_KEY=<temp.txt
+ 
+rem Create the container
+set “ZAP_COMMAND=”/zap/zap-baseline.py -t %TARGET_SCAN_ADDRESS% -x OWASP-ZAP-Report.xml””
+call az container create -g %ACI_RESOURCE_GROUP% -n %ACI_INSTANCE_NAME% –image owasp/zap2docker-stable –azure-file-volume-account-name %ACI_STORAGE_ACCOUNT_NAME% –azure-file-volume-account-key %STORAGE_KEY% –azure-file-volume-share-name %ACI_SHARE_NAME% –azure-file-volume-mount-path /zap/wrk/ –command-line %ZAP_COMMAND%
+sleep 30
